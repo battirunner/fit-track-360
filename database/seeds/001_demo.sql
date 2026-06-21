@@ -1,13 +1,18 @@
 INSERT INTO users (id, email, password_hash, full_name, height_cm, goal_weight_kg)
 VALUES (
   '00000000-0000-0000-0000-000000000001',
-  'demo@fittrack.local',
+  'demo@fittrack.dev',
   '$2b$12$k7GeSARqir3leS1VmHE80uoQjQIj208WSpc6JSXxfAd9pPro6pBwu',
   'Demo Athlete',
   175,
   72
 )
-ON CONFLICT (email) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  email = EXCLUDED.email,
+  password_hash = EXCLUDED.password_hash,
+  full_name = EXCLUDED.full_name,
+  height_cm = EXCLUDED.height_cm,
+  goal_weight_kg = EXCLUDED.goal_weight_kg;
 
 INSERT INTO meal_plans (id, user_id, title, starts_on)
 VALUES (
@@ -33,10 +38,11 @@ VALUES
   ('00000000-0000-0000-0000-000000000001', 77.2, CURRENT_DATE)
 ON CONFLICT (user_id, logged_on) DO NOTHING;
 
-INSERT INTO water_logs (user_id, amount_ml, logged_at)
+INSERT INTO water_logs (id, user_id, amount_ml, logged_at)
 VALUES
-  ('00000000-0000-0000-0000-000000000001', 500, now() - INTERVAL '5 hours'),
-  ('00000000-0000-0000-0000-000000000001', 750, now() - INTERVAL '2 hours');
+  ('00000000-0000-0000-0000-000000000301', '00000000-0000-0000-0000-000000000001', 500, now() - INTERVAL '5 hours'),
+  ('00000000-0000-0000-0000-000000000302', '00000000-0000-0000-0000-000000000001', 750, now() - INTERVAL '2 hours')
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO notification_settings (user_id)
 VALUES ('00000000-0000-0000-0000-000000000001')

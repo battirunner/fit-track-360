@@ -2,7 +2,18 @@ from datetime import date, datetime, time
 from decimal import Decimal
 from uuid import UUID, uuid4
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, Numeric, String, Text, Time, func
+from sqlalchemy import (
+    Boolean,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    Time,
+    func,
+)
 from sqlalchemy.dialects.postgresql import UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -27,8 +38,29 @@ class MealPlan(Base):
     id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid4)
     user_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("users.id"))
     title: Mapped[str] = mapped_column(String)
+    description: Mapped[str | None] = mapped_column(Text)
     starts_on: Mapped[date] = mapped_column(Date)
     ends_on: Mapped[date | None] = mapped_column(Date)
+    target_calories_min: Mapped[int | None] = mapped_column(Integer)
+    target_calories_max: Mapped[int | None] = mapped_column(Integer)
+    target_protein_min: Mapped[int | None] = mapped_column(Integer)
+    target_protein_max: Mapped[int | None] = mapped_column(Integer)
+    water_goal_ml: Mapped[int] = mapped_column(Integer, default=3000)
+    gym_days_per_week: Mapped[int | None] = mapped_column(Integer)
+    notes: Mapped[str | None] = mapped_column(Text)
+
+
+class MealPlanDay(Base):
+    __tablename__ = "meal_plan_days"
+
+    id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid4)
+    meal_plan_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("meal_plans.id"))
+    planned_on: Mapped[date] = mapped_column(Date)
+    calories: Mapped[int | None] = mapped_column(Integer)
+    protein_g: Mapped[Decimal | None] = mapped_column(Numeric(6, 2))
+    preparation: Mapped[str | None] = mapped_column(Text)
+    water_guidance: Mapped[str | None] = mapped_column(Text)
+    notes: Mapped[str | None] = mapped_column(Text)
 
 
 class Meal(Base):
@@ -36,6 +68,7 @@ class Meal(Base):
 
     id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid4)
     meal_plan_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("meal_plans.id"))
+    planned_on: Mapped[date | None] = mapped_column(Date)
     meal_type: Mapped[str] = mapped_column(String)
     name: Mapped[str] = mapped_column(String)
     calories: Mapped[int] = mapped_column(Integer)
@@ -43,6 +76,7 @@ class Meal(Base):
     carbs_g: Mapped[Decimal] = mapped_column(Numeric(6, 2), default=0)
     fat_g: Mapped[Decimal] = mapped_column(Numeric(6, 2), default=0)
     scheduled_time: Mapped[time | None] = mapped_column(Time)
+    notes: Mapped[str | None] = mapped_column(Text)
 
 
 class MealLog(Base):
@@ -62,7 +96,10 @@ class GymSession(Base):
 
     id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid4)
     user_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("users.id"))
-    checked_in_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    checked_in_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
     checked_out_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     notes: Mapped[str | None] = mapped_column(Text)
 

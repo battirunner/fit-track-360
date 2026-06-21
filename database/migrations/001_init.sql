@@ -14,20 +14,43 @@ CREATE TABLE IF NOT EXISTS meal_plans (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
+  description TEXT,
   starts_on DATE NOT NULL,
-  ends_on DATE
+  ends_on DATE,
+  target_calories_min INT,
+  target_calories_max INT,
+  target_protein_min INT,
+  target_protein_max INT,
+  water_goal_ml INT NOT NULL DEFAULT 3000,
+  gym_days_per_week INT,
+  notes TEXT
+);
+
+CREATE TABLE IF NOT EXISTS meal_plan_days (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  meal_plan_id UUID NOT NULL REFERENCES meal_plans(id) ON DELETE CASCADE,
+  planned_on DATE NOT NULL,
+  calories INT,
+  protein_g NUMERIC(6, 2),
+  preparation TEXT,
+  water_guidance TEXT,
+  notes TEXT,
+  UNIQUE (meal_plan_id, planned_on)
 );
 
 CREATE TABLE IF NOT EXISTS meals (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   meal_plan_id UUID NOT NULL REFERENCES meal_plans(id) ON DELETE CASCADE,
+  planned_on DATE,
   meal_type TEXT NOT NULL,
   name TEXT NOT NULL,
   calories INT NOT NULL,
   protein_g NUMERIC(6, 2) NOT NULL DEFAULT 0,
   carbs_g NUMERIC(6, 2) NOT NULL DEFAULT 0,
   fat_g NUMERIC(6, 2) NOT NULL DEFAULT 0,
-  scheduled_time TIME
+  scheduled_time TIME,
+  notes TEXT,
+  UNIQUE (meal_plan_id, planned_on, meal_type)
 );
 
 CREATE TABLE IF NOT EXISTS meal_logs (
