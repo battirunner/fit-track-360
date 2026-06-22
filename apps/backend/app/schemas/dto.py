@@ -30,6 +30,8 @@ class UserProfile(BaseModel):
 
 class MealDto(BaseModel):
     id: UUID | str
+    meal_plan_id: UUID | str | None = None
+    planned_on: date | str | None = None
     meal_type: str
     name: str
     calories: int
@@ -37,7 +39,53 @@ class MealDto(BaseModel):
     carbs_g: float
     fat_g: float
     scheduled_time: time | str | None = None
+    notes: str | None = None
     completed: bool = False
+
+
+class MealUpsertRequest(BaseModel):
+    planned_on: date | None = None
+    meal_type: str
+    name: str
+    calories: int = 0
+    protein_g: float = 0
+    carbs_g: float = 0
+    fat_g: float = 0
+    scheduled_time: time | None = None
+    notes: str | None = None
+
+
+class MealPlanDayDto(BaseModel):
+    planned_on: date
+    calories: int | None = None
+    protein_g: float | None = None
+    preparation: str | None = None
+    water_guidance: str | None = None
+    notes: str | None = None
+
+
+class MealPlanRequest(BaseModel):
+    title: str
+    description: str | None = None
+    starts_on: date
+    ends_on: date | None = None
+    target_calories_min: int | None = None
+    target_calories_max: int | None = None
+    target_protein_min: int | None = None
+    target_protein_max: int | None = None
+    water_goal_ml: int = 3000
+    gym_days_per_week: int | None = None
+    notes: str | None = None
+
+
+class MealPlanDto(MealPlanRequest):
+    id: UUID
+    meals_count: int = 0
+
+
+class MealPlanDetailDto(MealPlanDto):
+    days: list[MealPlanDayDto] = []
+    meals: list[MealDto] = []
 
 
 class MealLogRequest(BaseModel):

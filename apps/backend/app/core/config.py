@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 1440
     cors_origins_raw: str = Field(default="http://localhost:3000", validation_alias="CORS_ORIGINS")
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=("../../.env", ".env"), extra="ignore")
 
     @property
     def cors_origins(self) -> list[str]:

@@ -31,6 +31,17 @@ uv sync
 uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
+Initialize the database without needing `psql`:
+
+```powershell
+cd apps/backend
+make db-create
+make db-init
+make db-seed
+```
+
+`make db-reset` drops and recreates the `public` schema, then loads the seed data. Use it only when you want to wipe local data.
+
 On Windows without Make installed, use:
 
 ```powershell
@@ -59,5 +70,5 @@ npm run dev
 
 The seed file creates:
 
-- Email: `demo@fittrack.local`
+- Email: `demo@fittrack.dev`
 - Password: `password123`
