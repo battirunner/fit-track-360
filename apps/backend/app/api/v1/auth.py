@@ -51,6 +51,10 @@ def me(user: User = Depends(get_current_user)) -> UserProfile:
         id=user.id,
         email=user.email,
         full_name=user.full_name,
+        age=user.age,
+        sex=user.sex,
         height_cm=float(user.height_cm) if user.height_cm is not None else None,
         goal_weight_kg=float(user.goal_weight_kg) if user.goal_weight_kg is not None else None,
+        activity_level=user.activity_level,
+        medical_notes=user.medical_notes,
     )

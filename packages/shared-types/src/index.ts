@@ -45,9 +45,73 @@ export type MealPlanDetail = MealPlan & {
   meals: Meal[];
 };
 
+export type GroceryListItem = {
+  ingredient_id: string;
+  name: string;
+  category: string;
+  quantity: number;
+  unit: string;
+};
+
+export type GroceryList = {
+  plan_id: string;
+  start_on: string;
+  end_on: string;
+  items: GroceryListItem[];
+};
+
 export type WeightLog = {
   logged_on: string;
   weight_kg: number;
+};
+
+export type UserProfile = {
+  id: string;
+  email: string;
+  full_name: string;
+  age?: number | null;
+  sex?: string | null;
+  height_cm?: number | null;
+  goal_weight_kg?: number | null;
+  activity_level?: string | null;
+  medical_notes?: string | null;
+};
+
+export type BodyMeasurement = {
+  id: string;
+  measured_on: string;
+  weight_kg?: number | null;
+  waist_cm?: number | null;
+  chest_cm?: number | null;
+  hip_cm?: number | null;
+  arm_cm?: number | null;
+  thigh_cm?: number | null;
+  body_fat_percent?: number | null;
+  notes?: string | null;
+};
+
+export type BloodPressureLog = {
+  id: string;
+  measured_at: string;
+  systolic: number;
+  diastolic: number;
+  pulse?: number | null;
+  notes?: string | null;
+};
+
+export type BloodPressureAverage = {
+  systolic?: number | null;
+  diastolic?: number | null;
+  pulse?: number | null;
+  count: number;
+};
+
+export type ProfileOverview = {
+  user: UserProfile;
+  latest_measurement?: BodyMeasurement | null;
+  measurements: BodyMeasurement[];
+  blood_pressure_logs: BloodPressureLog[];
+  blood_pressure_average_last_7_days: BloodPressureAverage;
 };
 
 export type DashboardSummary = {
