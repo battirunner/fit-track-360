@@ -1,5 +1,4 @@
 import { AppShell } from "@/components/layout/app-shell";
-import { GroceryListPanel } from "@/components/modules/grocery-list";
 import { MealCalendar } from "@/components/modules/meal-calendar";
 import { MealList } from "@/components/modules/meal-list";
 import { MealPlanManager } from "@/components/modules/meal-plan-manager";
@@ -14,7 +13,6 @@ export default async function MealsPage() {
       <div className="space-y-5">
         <MealList meals={meals} />
         <MealCalendar plan={firstPlan} />
-        <GroceryListPanel plan={firstPlan} />
         <MealPlanManager initialDetail={firstPlan} initialPlans={plans} />
       </div>
     </AppShell>

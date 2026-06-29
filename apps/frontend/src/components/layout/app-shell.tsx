@@ -3,6 +3,7 @@ import {
   Dumbbell,
   LineChart,
   Settings,
+  ShoppingBasket,
   User,
   Utensils,
   Weight
@@ -13,6 +14,7 @@ import type { ReactNode } from "react";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: Activity },
   { href: "/meals", label: "Meals", icon: Utensils },
+  { href: "/shopping", label: "Shopping", icon: ShoppingBasket },
   { href: "/gym", label: "Gym", icon: Dumbbell },
   { href: "/weight", label: "Weight", icon: Weight },
   { href: "/progress", label: "Progress", icon: LineChart },

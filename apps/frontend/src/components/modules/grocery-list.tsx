@@ -11,9 +11,10 @@ type RangeMode = "week" | "month";
 
 export function GroceryListPanel({ plan }: { plan: MealPlanDetail | null }) {
   const today = new Date().toISOString().slice(0, 10);
-  const initialStart = plan && today >= plan.starts_on && today <= (plan.ends_on ?? plan.starts_on)
-    ? today
-    : plan?.starts_on ?? today;
+  const initialStart =
+    plan && today >= plan.starts_on && today <= (plan.ends_on ?? plan.starts_on)
+      ? today
+      : plan?.starts_on ?? today;
   const [mode, setMode] = useState<RangeMode>("week");
   const [startOn, setStartOn] = useState(initialStart);
   const [endOn, setEndOn] = useState(plan ? addDays(initialStart, 6, plan.ends_on) : initialStart);
@@ -23,10 +24,11 @@ export function GroceryListPanel({ plan }: { plan: MealPlanDetail | null }) {
   useEffect(() => {
     if (!plan) return;
     const nextStart = mode === "month" ? plan.starts_on : startOn;
-    const nextEnd = mode === "month" ? plan.ends_on ?? plan.starts_on : addDays(nextStart, 6, plan.ends_on);
+    const nextEnd =
+      mode === "month" ? plan.ends_on ?? plan.starts_on : addDays(nextStart, 6, plan.ends_on);
     setStartOn(nextStart);
     setEndOn(nextEnd);
-  }, [mode, plan]);
+  }, [mode, plan, startOn]);
 
   useEffect(() => {
     if (!plan) return;
@@ -117,7 +119,10 @@ export function GroceryListPanel({ plan }: { plan: MealPlanDetail | null }) {
                 <h3 className="mb-2 text-sm font-bold capitalize text-ink">{category}</h3>
                 <div className="space-y-2">
                   {items.map((item) => (
-                    <div className="flex items-center justify-between gap-3 text-sm" key={`${item.ingredient_id}-${item.unit}`}>
+                    <div
+                      className="flex items-center justify-between gap-3 text-sm"
+                      key={`${item.ingredient_id}-${item.unit}`}
+                    >
                       <span className="min-w-0 font-medium">{item.name}</span>
                       <span className="shrink-0 rounded bg-panel px-2 py-1 font-semibold">
                         {formatQuantity(item.quantity)} {item.unit}
@@ -147,7 +152,9 @@ function ModeButton({
 }) {
   return (
     <button
-      className={`rounded px-3 py-2 text-sm font-semibold ${active ? "bg-ink text-white" : "text-ink/70"}`}
+      className={`rounded px-3 py-2 text-sm font-semibold ${
+        active ? "bg-ink text-white" : "text-ink/70"
+      }`}
       onClick={onClick}
       type="button"
     >
