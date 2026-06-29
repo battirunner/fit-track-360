@@ -24,8 +24,79 @@ class UserProfile(BaseModel):
     id: UUID
     email: EmailStr
     full_name: str
+    age: int | None = None
+    sex: str | None = None
     height_cm: float | None = None
     goal_weight_kg: float | None = None
+    activity_level: str | None = None
+    medical_notes: str | None = None
+
+
+class ProfileUpdateRequest(BaseModel):
+    full_name: str
+    age: int | None = None
+    sex: str | None = None
+    height_cm: float | None = None
+    goal_weight_kg: float | None = None
+    activity_level: str | None = None
+    medical_notes: str | None = None
+
+
+class BodyMeasurementRequest(BaseModel):
+    measured_on: date | None = None
+    weight_kg: float | None = None
+    waist_cm: float | None = None
+    chest_cm: float | None = None
+    hip_cm: float | None = None
+    arm_cm: float | None = None
+    thigh_cm: float | None = None
+    body_fat_percent: float | None = None
+    notes: str | None = None
+
+
+class BodyMeasurementDto(BaseModel):
+    id: UUID
+    measured_on: date
+    weight_kg: float | None = None
+    waist_cm: float | None = None
+    chest_cm: float | None = None
+    hip_cm: float | None = None
+    arm_cm: float | None = None
+    thigh_cm: float | None = None
+    body_fat_percent: float | None = None
+    notes: str | None = None
+
+
+class BloodPressureRequest(BaseModel):
+    measured_at: datetime | None = None
+    systolic: int
+    diastolic: int
+    pulse: int | None = None
+    notes: str | None = None
+
+
+class BloodPressureDto(BaseModel):
+    id: UUID
+    measured_at: datetime
+    systolic: int
+    diastolic: int
+    pulse: int | None = None
+    notes: str | None = None
+
+
+class BloodPressureAverageDto(BaseModel):
+    systolic: float | None = None
+    diastolic: float | None = None
+    pulse: float | None = None
+    count: int = 0
+
+
+class ProfileOverviewDto(BaseModel):
+    user: UserProfile
+    latest_measurement: BodyMeasurementDto | None = None
+    measurements: list[BodyMeasurementDto] = []
+    blood_pressure_logs: list[BloodPressureDto] = []
+    blood_pressure_average_last_7_days: BloodPressureAverageDto
 
 
 class MealDto(BaseModel):
@@ -86,6 +157,21 @@ class MealPlanDto(MealPlanRequest):
 class MealPlanDetailDto(MealPlanDto):
     days: list[MealPlanDayDto] = []
     meals: list[MealDto] = []
+
+
+class GroceryListItemDto(BaseModel):
+    ingredient_id: UUID
+    name: str
+    category: str
+    quantity: float
+    unit: str
+
+
+class GroceryListDto(BaseModel):
+    plan_id: UUID
+    start_on: date
+    end_on: date
+    items: list[GroceryListItemDto]
 
 
 class MealLogRequest(BaseModel):

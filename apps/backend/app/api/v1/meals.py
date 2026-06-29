@@ -7,8 +7,18 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.security import get_current_user
-from app.models.entities import Meal, MealLog, MealPlan, MealPlanDay, User
+from app.models.entities import (
+    Ingredient,
+    Meal,
+    MealIngredient,
+    MealLog,
+    MealPlan,
+    MealPlanDay,
+    User,
+)
 from app.schemas.dto import (
+    GroceryListDto,
+    GroceryListItemDto,
     MealDto,
     MealLogRequest,
     MealPlanDayDto,
@@ -152,6 +162,59 @@ def delete_plan(
     db.delete(plan)
     db.commit()
     return {"status": "deleted"}
+
+
+@router.get("/plans/{plan_id}/grocery-list", response_model=GroceryListDto)
+def get_grocery_list(
+    plan_id: UUID,
+    start_on: date | None = None,
+    end_on: date | None = None,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> GroceryListDto:
+    plan = _get_user_plan(db, user, plan_id)
+    range_start = start_on or plan.starts_on
+    range_end = end_on or plan.ends_on or plan.starts_on
+    if range_end < range_start:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="end_on must be on or after start_on",
+        )
+
+    rows = db.execute(
+        select(
+            Ingredient.id,
+            Ingredient.name,
+            Ingredient.category,
+            MealIngredient.unit,
+            func.sum(MealIngredient.quantity),
+        )
+        .join(MealIngredient, MealIngredient.ingredient_id == Ingredient.id)
+        .join(Meal, Meal.id == MealIngredient.meal_id)
+        .where(
+            Meal.meal_plan_id == plan.id,
+            Meal.planned_on >= range_start,
+            Meal.planned_on <= range_end,
+        )
+        .group_by(Ingredient.id, Ingredient.name, Ingredient.category, MealIngredient.unit)
+        .order_by(Ingredient.category.asc(), Ingredient.name.asc(), MealIngredient.unit.asc())
+    ).all()
+
+    return GroceryListDto(
+        plan_id=plan.id,
+        start_on=range_start,
+        end_on=range_end,
+        items=[
+            GroceryListItemDto(
+                ingredient_id=ingredient_id,
+                name=name,
+                category=category,
+                unit=unit,
+                quantity=float(quantity),
+            )
+            for ingredient_id, name, category, unit, quantity in rows
+        ],
+    )
 
 
 @router.post("/plans/{plan_id}/meals", response_model=MealDto)

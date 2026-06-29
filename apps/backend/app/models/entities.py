@@ -27,9 +27,45 @@ class User(Base):
     email: Mapped[str] = mapped_column(String, unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(Text)
     full_name: Mapped[str] = mapped_column(String)
+    age: Mapped[int | None] = mapped_column(Integer)
+    sex: Mapped[str | None] = mapped_column(String)
     height_cm: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
     goal_weight_kg: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    activity_level: Mapped[str | None] = mapped_column(Text)
+    medical_notes: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class BodyMeasurement(Base):
+    __tablename__ = "body_measurements"
+
+    id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("users.id"))
+    measured_on: Mapped[date] = mapped_column(Date)
+    weight_kg: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    waist_cm: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    chest_cm: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    hip_cm: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    arm_cm: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    thigh_cm: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    body_fat_percent: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class BloodPressureLog(Base):
+    __tablename__ = "blood_pressure_logs"
+
+    id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("users.id"))
+    measured_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+    systolic: Mapped[int] = mapped_column(Integer)
+    diastolic: Mapped[int] = mapped_column(Integer)
+    pulse: Mapped[int | None] = mapped_column(Integer)
+    notes: Mapped[str | None] = mapped_column(Text)
 
 
 class MealPlan(Base):
@@ -76,6 +112,27 @@ class Meal(Base):
     carbs_g: Mapped[Decimal] = mapped_column(Numeric(6, 2), default=0)
     fat_g: Mapped[Decimal] = mapped_column(Numeric(6, 2), default=0)
     scheduled_time: Mapped[time | None] = mapped_column(Time)
+    notes: Mapped[str | None] = mapped_column(Text)
+
+
+class Ingredient(Base):
+    __tablename__ = "ingredients"
+
+    id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid4)
+    name: Mapped[str] = mapped_column(String, unique=True)
+    category: Mapped[str] = mapped_column(String, default="other")
+    default_unit: Mapped[str] = mapped_column(String, default="g")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class MealIngredient(Base):
+    __tablename__ = "meal_ingredients"
+
+    id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid4)
+    meal_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("meals.id"))
+    ingredient_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("ingredients.id"))
+    quantity: Mapped[Decimal] = mapped_column(Numeric(8, 2))
+    unit: Mapped[str] = mapped_column(String)
     notes: Mapped[str | None] = mapped_column(Text)
 
 

@@ -1,10 +1,36 @@
-import type { DashboardSummary, Meal, MealPlan, MealPlanDetail, WeightLog } from "@fittrack/shared-types";
+import type {
+  DashboardSummary,
+  GroceryList,
+  Meal,
+  MealPlan,
+  MealPlanDetail,
+  ProfileOverview,
+  WeightLog
+} from "@fittrack/shared-types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+const CONFIGURED_API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+
+function getApiBaseUrl() {
+  if (typeof window !== "undefined") {
+    return CONFIGURED_API_BASE_URL;
+  }
+
+  try {
+    const url = new URL(CONFIGURED_API_BASE_URL);
+    if (url.hostname === "localhost") {
+      url.hostname = "127.0.0.1";
+      return url.toString().replace(/\/$/, "");
+    }
+  } catch {
+    return CONFIGURED_API_BASE_URL;
+  }
+
+  return CONFIGURED_API_BASE_URL;
+}
 
 async function getJson<T>(path: string, fallback: T): Promise<T> {
   try {
-    const response = await fetch(`${API_BASE_URL}${path}`, {
+    const response = await fetch(`${getApiBaseUrl()}${path}`, {
       next: { revalidate: 20 }
     });
 
@@ -23,7 +49,7 @@ export async function postJson<TResponse, TBody extends object>(
   body: TBody,
   token?: string
 ): Promise<TResponse> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${getApiBaseUrl()}${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -45,7 +71,7 @@ export async function putJson<TResponse, TBody extends object>(
   body: TBody,
   token?: string
 ): Promise<TResponse> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${getApiBaseUrl()}${path}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -63,7 +89,7 @@ export async function putJson<TResponse, TBody extends object>(
 }
 
 export async function deleteJson<TResponse>(path: string, token?: string): Promise<TResponse> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${getApiBaseUrl()}${path}`, {
     method: "DELETE",
     headers: token ? { Authorization: `Bearer ${token}` } : {}
   });
@@ -129,6 +155,62 @@ export const fallbackMeals: Meal[] = [
   }
 ];
 
+export const fallbackProfile: ProfileOverview = {
+  user: {
+    id: "demo",
+    email: "demo@fittrack.dev",
+    full_name: "Demo Athlete",
+    age: 34,
+    sex: "male",
+    height_cm: 175,
+    goal_weight_kg: 72,
+    activity_level: "Gym 4 days/week",
+    medical_notes: "No known medical notes."
+  },
+  latest_measurement: {
+    id: "measurement-demo",
+    measured_on: new Date().toISOString().slice(0, 10),
+    weight_kg: 70,
+    waist_cm: 84,
+    chest_cm: 96,
+    hip_cm: 94,
+    arm_cm: 32,
+    thigh_cm: 55,
+    body_fat_percent: 22,
+    notes: "Initial demo body measurement."
+  },
+  measurements: [
+    {
+      id: "measurement-demo",
+      measured_on: new Date().toISOString().slice(0, 10),
+      weight_kg: 70,
+      waist_cm: 84,
+      chest_cm: 96,
+      hip_cm: 94,
+      arm_cm: 32,
+      thigh_cm: 55,
+      body_fat_percent: 22,
+      notes: "Initial demo body measurement."
+    }
+  ],
+  blood_pressure_logs: [
+    {
+      id: "bp-demo",
+      measured_at: new Date().toISOString(),
+      systolic: 120,
+      diastolic: 78,
+      pulse: 70,
+      notes: "Morning reading"
+    }
+  ],
+  blood_pressure_average_last_7_days: {
+    systolic: 120,
+    diastolic: 78,
+    pulse: 70,
+    count: 1
+  }
+};
+
 export function getDashboardSummary() {
   return getJson<DashboardSummary>("/api/v1/dashboard/summary", fallbackSummary);
 }
@@ -145,8 +227,20 @@ export function getMealPlan(planId: string) {
   return getJson<MealPlanDetail | null>(`/api/v1/meals/plans/${planId}`, null);
 }
 
+export function getGroceryList(planId: string, startOn: string, endOn: string) {
+  const params = new URLSearchParams({ start_on: startOn, end_on: endOn });
+  return getJson<GroceryList>(
+    `/api/v1/meals/plans/${planId}/grocery-list?${params.toString()}`,
+    { plan_id: planId, start_on: startOn, end_on: endOn, items: [] }
+  );
+}
+
 export function getWeightLogs() {
   return getJson<WeightLog[]>("/api/v1/weight", fallbackSummary.weight_trend);
+}
+
+export function getProfileOverview() {
+  return getJson<ProfileOverview>("/api/v1/profile", fallbackProfile);
 }
 
 export function getMonthlyDashboard() {

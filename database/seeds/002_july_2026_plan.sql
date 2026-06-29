@@ -201,3 +201,85 @@ ON CONFLICT (meal_plan_id, planned_on, meal_type) DO UPDATE SET
   fat_g = EXCLUDED.fat_g,
   scheduled_time = EXCLUDED.scheduled_time,
   notes = EXCLUDED.notes;
+
+INSERT INTO ingredients (name, category, default_unit)
+VALUES
+  ('Apple', 'fruit', 'piece'),
+  ('Banana', 'fruit', 'piece'),
+  ('Beef', 'protein', 'g'),
+  ('Bread', 'grain', 'g'),
+  ('Broccoli', 'vegetable', 'g'),
+  ('Chicken', 'protein', 'g'),
+  ('Curry Sauce', 'pantry', 'serving'),
+  ('Eggs', 'protein', 'piece'),
+  ('Greek Yogurt', 'dairy', 'g'),
+  ('Milk', 'dairy', 'ml'),
+  ('Oats', 'grain', 'g'),
+  ('Orange', 'fruit', 'piece'),
+  ('Rice', 'grain', 'g'),
+  ('Salad', 'vegetable', 'serving'),
+  ('Salmon', 'protein', 'g'),
+  ('Tuna', 'protein', 'g'),
+  ('Vegetables', 'vegetable', 'g'),
+  ('Yogurt', 'dairy', 'g')
+ON CONFLICT (name) DO UPDATE SET
+  category = EXCLUDED.category,
+  default_unit = EXCLUDED.default_unit;
+
+WITH days AS (
+  SELECT
+    day::date AS planned_on,
+    mod((day::date - DATE '2026-07-01')::int, 7) + 1 AS cycle_day
+  FROM generate_series(DATE '2026-07-01', DATE '2026-07-31', INTERVAL '1 day') AS day
+),
+ingredient_source AS (
+  SELECT planned_on, meal_type, ingredient_name, quantity, unit
+  FROM days
+  CROSS JOIN LATERAL (
+    VALUES
+      ('breakfast', 'Oats', CASE WHEN cycle_day IN (1, 3, 6) THEN 60 WHEN cycle_day = 5 THEN 50 END::numeric, 'g'),
+      ('breakfast', 'Milk', CASE WHEN cycle_day IN (1, 3, 6) THEN 250 END::numeric, 'ml'),
+      ('breakfast', 'Banana', CASE WHEN cycle_day = 1 THEN 120 END::numeric, 'g'),
+      ('breakfast', 'Eggs', CASE WHEN cycle_day IN (2, 7) THEN 3 WHEN cycle_day = 4 THEN 4 END::numeric, 'piece'),
+      ('breakfast', 'Bread', CASE WHEN cycle_day IN (2, 7) THEN 60 END::numeric, 'g'),
+      ('breakfast', 'Vegetables', CASE WHEN cycle_day = 4 THEN 150 END::numeric, 'g'),
+      ('breakfast', 'Yogurt', CASE WHEN cycle_day = 5 THEN 250 END::numeric, 'g'),
+      ('lunch', 'Chicken', CASE WHEN cycle_day IN (1, 5, 7) THEN 200 WHEN cycle_day IN (2, 4, 6) THEN 220 END::numeric, 'g'),
+      ('lunch', 'Rice', CASE WHEN cycle_day IN (1, 3, 4, 5, 7) THEN 150 WHEN cycle_day = 2 THEN 130 WHEN cycle_day = 6 THEN 180 END::numeric, 'g'),
+      ('lunch', 'Broccoli', CASE WHEN cycle_day = 1 THEN 100 END::numeric, 'g'),
+      ('lunch', 'Salad', CASE WHEN cycle_day = 2 THEN 1 END::numeric, 'serving'),
+      ('lunch', 'Tuna', CASE WHEN cycle_day = 3 THEN 150 END::numeric, 'g'),
+      ('lunch', 'Vegetables', CASE WHEN cycle_day = 3 THEN 200 END::numeric, 'g'),
+      ('lunch', 'Curry Sauce', CASE WHEN cycle_day = 4 THEN 1 END::numeric, 'serving'),
+      ('snack', 'Greek Yogurt', CASE WHEN cycle_day = 1 THEN 200 END::numeric, 'g'),
+      ('snack', 'Apple', CASE WHEN cycle_day IN (1, 5) THEN 1 END::numeric, 'piece'),
+      ('snack', 'Yogurt', CASE WHEN cycle_day IN (2, 6, 7) THEN 200 END::numeric, 'g'),
+      ('snack', 'Eggs', CASE WHEN cycle_day IN (3, 5) THEN 2 END::numeric, 'piece'),
+      ('snack', 'Orange', CASE WHEN cycle_day = 3 THEN 1 END::numeric, 'piece'),
+      ('snack', 'Banana', CASE WHEN cycle_day = 4 THEN 1 END::numeric, 'piece'),
+      ('dinner', 'Salmon', CASE WHEN cycle_day = 1 THEN 180 WHEN cycle_day = 4 THEN 200 END::numeric, 'g'),
+      ('dinner', 'Vegetables', CASE WHEN cycle_day IN (1, 2, 5, 6) THEN 250 END::numeric, 'g'),
+      ('dinner', 'Chicken', CASE WHEN cycle_day = 2 THEN 200 WHEN cycle_day = 3 THEN 220 WHEN cycle_day = 6 THEN 200 END::numeric, 'g'),
+      ('dinner', 'Salad', CASE WHEN cycle_day IN (3, 7) THEN 1 END::numeric, 'serving'),
+      ('dinner', 'Broccoli', CASE WHEN cycle_day = 4 THEN 150 END::numeric, 'g'),
+      ('dinner', 'Beef', CASE WHEN cycle_day = 5 THEN 150 END::numeric, 'g'),
+      ('dinner', 'Tuna', CASE WHEN cycle_day = 7 THEN 150 END::numeric, 'g')
+  ) item(meal_type, ingredient_name, quantity, unit)
+  WHERE quantity IS NOT NULL
+)
+INSERT INTO meal_ingredients (meal_id, ingredient_id, quantity, unit)
+SELECT
+  meals.id,
+  ingredients.id,
+  ingredient_source.quantity,
+  ingredient_source.unit
+FROM ingredient_source
+JOIN meals
+  ON meals.meal_plan_id = '00000000-0000-0000-0000-000000000401'
+  AND meals.planned_on = ingredient_source.planned_on
+  AND meals.meal_type = ingredient_source.meal_type
+JOIN ingredients
+  ON ingredients.name = ingredient_source.ingredient_name
+ON CONFLICT (meal_id, ingredient_id) DO UPDATE SET
+  quantity = EXCLUDED.quantity,
+  unit = EXCLUDED.unit;
