@@ -113,6 +113,20 @@ class Meal(Base):
     fat_g: Mapped[Decimal] = mapped_column(Numeric(6, 2), default=0)
     scheduled_time: Mapped[time | None] = mapped_column(Time)
     notes: Mapped[str | None] = mapped_column(Text)
+    recipe_id: Mapped[UUID | None] = mapped_column(PgUUID(as_uuid=True), ForeignKey("recipes.id"))
+
+
+class Recipe(Base):
+    __tablename__ = "recipes"
+
+    id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid4)
+    title: Mapped[str] = mapped_column(String, unique=True)
+    description: Mapped[str | None] = mapped_column(Text)
+    main_ingredients: Mapped[str | None] = mapped_column(Text)
+    instructions: Mapped[str | None] = mapped_column(Text)
+    video_url: Mapped[str | None] = mapped_column(Text)
+    source: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class Ingredient(Base):

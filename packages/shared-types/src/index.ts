@@ -3,6 +3,7 @@ export type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 export type Meal = {
   id: string;
   meal_plan_id?: string | null;
+  recipe_id?: string | null;
   planned_on?: string | null;
   meal_type: MealType | string;
   name: string;
@@ -58,6 +59,21 @@ export type GroceryList = {
   start_on: string;
   end_on: string;
   items: GroceryListItem[];
+};
+
+export type Recipe = {
+  id: string;
+  title: string;
+  description?: string | null;
+  main_ingredients?: string | null;
+  instructions?: string | null;
+  video_url?: string | null;
+  source?: string | null;
+  planned_meals_count: number;
+};
+
+export type RecipeDetail = Recipe & {
+  used_in_meals: Meal[];
 };
 
 export type WeightLog = {

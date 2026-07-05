@@ -102,6 +102,7 @@ class ProfileOverviewDto(BaseModel):
 class MealDto(BaseModel):
     id: UUID | str
     meal_plan_id: UUID | str | None = None
+    recipe_id: UUID | str | None = None
     planned_on: date | str | None = None
     meal_type: str
     name: str
@@ -172,6 +173,21 @@ class GroceryListDto(BaseModel):
     start_on: date
     end_on: date
     items: list[GroceryListItemDto]
+
+
+class RecipeDto(BaseModel):
+    id: UUID
+    title: str
+    description: str | None = None
+    main_ingredients: str | None = None
+    instructions: str | None = None
+    video_url: str | None = None
+    source: str | None = None
+    planned_meals_count: int = 0
+
+
+class RecipeDetailDto(RecipeDto):
+    used_in_meals: list[MealDto] = []
 
 
 class MealLogRequest(BaseModel):

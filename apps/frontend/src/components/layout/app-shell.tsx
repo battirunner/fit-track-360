@@ -2,6 +2,7 @@ import {
   Activity,
   Dumbbell,
   LineChart,
+  NotebookTabs,
   Settings,
   ShoppingBasket,
   User,
@@ -14,6 +15,7 @@ import type { ReactNode } from "react";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: Activity },
   { href: "/meals", label: "Meals", icon: Utensils },
+  { href: "/recipes", label: "Recipes", icon: NotebookTabs },
   { href: "/shopping", label: "Shopping", icon: ShoppingBasket },
   { href: "/gym", label: "Gym", icon: Dumbbell },
   { href: "/weight", label: "Weight", icon: Weight },

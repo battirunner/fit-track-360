@@ -35,6 +35,7 @@ def _meal_to_dto(meal: Meal, completed: bool = False) -> MealDto:
     return MealDto(
         id=meal.id,
         meal_plan_id=meal.meal_plan_id,
+        recipe_id=meal.recipe_id,
         planned_on=meal.planned_on,
         meal_type=meal.meal_type,
         name=meal.name,

@@ -5,6 +5,8 @@ import type {
   MealPlan,
   MealPlanDetail,
   ProfileOverview,
+  Recipe,
+  RecipeDetail,
   WeightLog
 } from "@fittrack/shared-types";
 
@@ -233,6 +235,14 @@ export function getGroceryList(planId: string, startOn: string, endOn: string) {
     `/api/v1/meals/plans/${planId}/grocery-list?${params.toString()}`,
     { plan_id: planId, start_on: startOn, end_on: endOn, items: [] }
   );
+}
+
+export function getRecipes() {
+  return getJson<Recipe[]>("/api/v1/recipes", []);
+}
+
+export function getRecipe(recipeId: string) {
+  return getJson<RecipeDetail | null>(`/api/v1/recipes/${recipeId}`, null);
 }
 
 export function getWeightLogs() {
