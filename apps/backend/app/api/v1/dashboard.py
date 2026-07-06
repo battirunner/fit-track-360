@@ -30,7 +30,7 @@ def summary(
         select(func.count(MealLog.id)).where(
             MealLog.user_id == user.id,
             MealLog.completed.is_(True),
-            func.date(MealLog.logged_at) == today,
+            MealLog.logged_on == today,
         )
     ) or 0
     water_ml = db.scalar(
@@ -102,7 +102,7 @@ def monthly(
         select(func.count(MealLog.id)).where(
             MealLog.user_id == user.id,
             MealLog.completed.is_(True),
-            func.date(MealLog.logged_at) >= month_start,
+            MealLog.logged_on >= month_start,
         )
     ) or 0
     gym_attendance = db.scalar(

@@ -33,7 +33,7 @@ function getApiBaseUrl() {
 async function getJson<T>(path: string, fallback: T): Promise<T> {
   try {
     const response = await fetch(`${getApiBaseUrl()}${path}`, {
-      next: { revalidate: 20 }
+      cache: "no-store"
     });
 
     if (!response.ok) {

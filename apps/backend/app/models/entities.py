@@ -159,6 +159,7 @@ class MealLog(Base):
     meal_type: Mapped[str] = mapped_column(String)
     logged_name: Mapped[str | None] = mapped_column(String)
     completed: Mapped[bool] = mapped_column(Boolean, default=False)
+    logged_on: Mapped[date] = mapped_column(Date)
     logged_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

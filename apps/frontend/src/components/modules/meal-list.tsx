@@ -2,11 +2,13 @@
 
 import type { Meal } from "@fittrack/shared-types";
 import { Check, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { postJson } from "@/lib/api";
 
 export function MealList({ meals }: { meals: Meal[] }) {
+  const router = useRouter();
   const [localMeals, setLocalMeals] = useState(meals);
   const [message, setMessage] = useState("");
   const macros = useMemo(
@@ -23,15 +25,24 @@ export function MealList({ meals }: { meals: Meal[] }) {
   );
 
   async function completeMeal(meal: Meal) {
+    setMessage("");
     setLocalMeals((current) =>
       current.map((item) => (item.id === meal.id ? { ...item, completed: true } : item))
     );
-    await postJson("/api/v1/meals/log", {
-      meal_id: meal.id,
-      meal_type: meal.meal_type,
-      completed: true
-    });
-    setMessage(`${meal.meal_type} logged`);
+    try {
+      await postJson("/api/v1/meals/log", {
+        meal_id: meal.id,
+        meal_type: meal.meal_type,
+        completed: true
+      });
+      setMessage(`${meal.meal_type} logged`);
+      router.refresh();
+    } catch {
+      setLocalMeals((current) =>
+        current.map((item) => (item.id === meal.id ? { ...item, completed: false } : item))
+      );
+      setMessage("Could not save meal completion. Check that the backend is running.");
+    }
   }
 
   return (

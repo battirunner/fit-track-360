@@ -12,6 +12,8 @@ import {
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { AccountMenu } from "@/components/layout/account-menu";
+
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: Activity },
   { href: "/meals", label: "Meals", icon: Utensils },
@@ -59,28 +61,37 @@ export function AppShell({ title, eyebrow = "FitTrack", children, action }: Prop
       </aside>
 
       <section className="min-w-0 flex-1 pb-24 lg:pb-4">
-        <header className="mb-5 flex flex-col gap-4 rounded-lg border border-ink/10 bg-panel/90 p-4 shadow-soft md:flex-row md:items-center md:justify-between">
+        <header className="sticky top-4 z-30 mb-5 rounded-lg border border-ink/10 bg-panel/95 p-3 shadow-soft backdrop-blur">
+          <div className="flex items-center gap-3">
+            <Link className="flex shrink-0 items-center gap-2 lg:hidden" href="/dashboard">
+              <div className="grid size-10 place-items-center rounded-lg bg-mint text-white">
+                <Activity size={20} />
+              </div>
+              <span className="font-bold">FitTrack</span>
+            </Link>
+
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-ink">FitTrack Dashboard</p>
+              <p className="hidden truncate text-xs text-steel sm:block">
+                Track meals, training, progress, and planning from one workspace
+              </p>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2">
+              {action}
+              <AccountMenu />
+            </div>
+          </div>
+        </header>
+
+        <div className="mb-5 flex flex-col gap-4 rounded-lg border border-ink/10 bg-panel/90 p-4 shadow-soft md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-medium text-steel">{eyebrow}</p>
             <h1 className="text-2xl font-bold tracking-normal md:text-3xl">{title}</h1>
           </div>
-          {action}
-        </header>
+        </div>
         {children}
       </section>
-
-      <nav className="fixed inset-x-3 bottom-3 z-20 grid grid-cols-5 rounded-lg border border-ink/10 bg-panel/95 p-1 shadow-soft backdrop-blur lg:hidden">
-        {navItems.slice(0, 5).map((item) => (
-          <Link
-            key={item.href}
-            className="flex h-14 flex-col items-center justify-center gap-1 rounded-md text-[11px] font-medium text-ink/70"
-            href={item.href}
-          >
-            <item.icon size={18} />
-            <span>{item.label}</span>
-          </Link>
-        ))}
-      </nav>
     </main>
   );
 }

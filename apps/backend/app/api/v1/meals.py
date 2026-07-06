@@ -280,7 +280,7 @@ def meals_by_date(
             select(MealLog.meal_id).where(
                 MealLog.user_id == user.id,
                 MealLog.completed.is_(True),
-                func.date(MealLog.logged_at) == target_date,
+                MealLog.logged_on == target_date,
                 MealLog.meal_id.is_not(None),
             )
         ).all()
@@ -308,7 +308,7 @@ def today_meals(
             select(MealLog.meal_id).where(
                 MealLog.user_id == user.id,
                 MealLog.completed.is_(True),
-                func.date(MealLog.logged_at) == today,
+                MealLog.logged_on == today,
                 MealLog.meal_id.is_not(None),
             )
         ).all()
@@ -338,7 +338,7 @@ def monthly_meals(
         select(func.count(MealLog.id)).where(
             MealLog.user_id == user.id,
             MealLog.completed.is_(True),
-            func.date(MealLog.logged_at) >= month_start,
+            MealLog.logged_on >= month_start,
         )
     ) or 0
     planned = db.scalar(
@@ -368,7 +368,7 @@ def log_meal(
                 and_(
                     MealLog.user_id == user.id,
                     MealLog.meal_id == payload.meal_id,
-                    func.date(MealLog.logged_at) == today,
+                    MealLog.logged_on == today,
                 )
             )
         )
@@ -383,6 +383,7 @@ def log_meal(
                 meal_id=payload.meal_id,
                 meal_type=payload.meal_type,
                 logged_name=payload.logged_name,
+                logged_on=today,
                 completed=payload.completed,
             )
         )
